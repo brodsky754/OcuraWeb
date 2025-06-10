@@ -72,49 +72,61 @@ mobileMenu.addEventListener('click', () => {
     mobileMenu.classList.toggle('active');
 });
 
-// Smooth Scroll for Navigation Links
+// Enhanced Smooth Scroll for Navigation Links
+function smoothScrollTo(element, duration = 1000) {
+    const targetPosition = element.getBoundingClientRect().top + window.pageYOffset;
+    const startPosition = window.pageYOffset;
+    const distance = targetPosition - startPosition;
+    let startTime = null;
+
+    function animation(currentTime) {
+        if (startTime === null) startTime = currentTime;
+        const timeElapsed = currentTime - startTime;
+        const progress = Math.min(timeElapsed / duration, 1);
+        
+        // Easing function for smooth acceleration and deceleration
+        const easing = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        
+        window.scrollTo(0, startPosition + distance * easing(progress));
+        
+        if (timeElapsed < duration) {
+            requestAnimationFrame(animation);
+        }
+    }
+
+    requestAnimationFrame(animation);
+}
+
+// Handle all anchor links with smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        document.querySelector(this.getAttribute('href')).scrollTop = 0;
-        document.querySelector(this.getAttribute('href')).scrollIntoView({
-            behavior: 'smooth'
-        });
+        const targetId = this.getAttribute('href').substring(1);
+        const targetElement = document.getElementById(targetId);
+        
+        if (targetElement) {
+            // Close mobile menu if open
+            if (navLinks.classList.contains('active')) {
+                navLinks.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            }
+            
+            smoothScrollTo(targetElement);
+        }
     });
 });
 
-// Waitlist Form Handling
-const waitlistForm = document.getElementById('waitlistForm');
-const emailInput = document.getElementById('emailInput');
-const formMessage = document.getElementById('formMessage');
-
-waitlistForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = emailInput.value;
-
-    // Add loading state
-    const submitButton = waitlistForm.querySelector('button');
-    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
-    submitButton.disabled = true;
-
-    try {
-        // Simulate API call (replace with actual API endpoint)
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Success message
-        formMessage.className = 'form-message success';
-        formMessage.textContent = 'Thank you for joining our waitlist! We\'ll be in touch soon.';
-        emailInput.value = '';
-    } catch (error) {
-        // Error message
-        formMessage.className = 'form-message error';
-        formMessage.textContent = 'Oops! Something went wrong. Please try again.';
-    } finally {
-        // Reset button
-        submitButton.innerHTML = 'Join Waitlist';
-        submitButton.disabled = false;
-    }
-});
+// Specifically handle the "Join the Waitlist" button
+const scrollToContact = document.getElementById('scrollToContact');
+if (scrollToContact) {
+    scrollToContact.addEventListener('click', function(e) {
+        e.preventDefault();
+        const contactSection = document.getElementById('contact');
+        if (contactSection) {
+            smoothScrollTo(contactSection);
+        }
+    });
+}
 
 // Floating Animation for Cards
 const cards = document.querySelectorAll('.stat-box, .feature-card, .security-feature');
@@ -154,4 +166,37 @@ const fadeObserver = new IntersectionObserver((entries) => {
     });
 }, { threshold: 0.1 });
 
-fadeElements.forEach(element => fadeObserver.observe(element)); 
+fadeElements.forEach(element => fadeObserver.observe(element));
+
+// Waitlist Form Handling
+const waitlistForm = document.getElementById('waitlistForm');
+const emailInput = document.getElementById('emailInput');
+const formMessage = document.getElementById('formMessage');
+
+waitlistForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = emailInput.value;
+
+    // Add loading state
+    const submitButton = waitlistForm.querySelector('button');
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Joining...';
+    submitButton.disabled = true;
+
+    try {
+        // Simulate API call (replace with actual API endpoint)
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Success message
+        formMessage.className = 'form-message success';
+        formMessage.textContent = 'Thank you for joining our waitlist! We\'ll be in touch soon.';
+        emailInput.value = '';
+    } catch (error) {
+        // Error message
+        formMessage.className = 'form-message error';
+        formMessage.textContent = 'Oops! Something went wrong. Please try again.';
+    } finally {
+        // Reset button
+        submitButton.innerHTML = 'Join Waitlist';
+        submitButton.disabled = false;
+    }
+}); 
