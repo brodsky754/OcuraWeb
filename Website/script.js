@@ -199,4 +199,12 @@ waitlistForm.addEventListener('submit', async (e) => {
         submitButton.innerHTML = 'Join Waitlist';
         submitButton.disabled = false;
     }
+});
+
+// Toggle details in How It Works cards
+const stepCards=document.querySelectorAll('.step-card');
+stepCards.forEach(card=>{
+  card.addEventListener('click',()=>{
+    card.classList.toggle('active');
+  });
 }); 
